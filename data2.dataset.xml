@@ -1,0 +1,73 @@
+<data>
+	<dataset>
+		<name>Data</name>
+		<table>
+			<name>Data2</name>
+			<type>context</type>
+        	<context>
+				<parameter>
+					<name>Condition</name>
+					<type>condition</type>
+					<source>
+						<table>default</table>
+						<column>Value</column>
+					</source>
+				</parameter>
+        		<basequery>HMSoftware.Entities.HMCRM.AddressContact</basequery>
+        		<basecondition>ClientNumber = $(clientnumber)</basecondition>
+        		<fields>
+        			<field>
+        				<name>Id</name>
+        			</field>
+        			<field>
+        				<name>Address.Id AS AddressId</name>
+        			</field>
+        			<field>
+        				<name>('aa0f443a177c4004a0809d0489d9eec6') AS DataGroup</name>
+        			</field>
+        			<field>
+        				<name>Address.Nummer AS Nummer</name>
+        			</field>
+        			<field>
+        				<name>Address.Kurzname AS Kurzname</name>
+        			</field>
+        			<field>
+        				<name>Address.Name01 AS Name01</name>
+        			</field>
+        			<field>
+        				<name>Address.Strasse</name>
+        			</field>
+        			<field>
+        				<name>Address.PLZ</name>
+        			</field>
+					<field>
+        				<name>Address.Ort</name>
+        			</field>
+
+        			<field>
+        				<name>COALESCE(Anrede, '') || ' ' || COALESCE(Titel, '') || ' ' || COALESCE(Vorname, '') || ' ' || COALESCE(Partner, '') AS Ansprechpartner</name>
+        			</field>
+        			<field>
+        				<name>EMail</name>
+        			</field>
+					<field>
+        				<name>ClientNumber</name>
+        			</field>
+        			<field>
+        				<name>FullTelephoneNumber AS Telefon</name>
+        			</field>
+        			<field>
+        				<name>Autotelefon AS Mobil</name>
+        			</field>
+        			<field>
+        				<name>1 AS Type</name>
+        			</field>
+        			<field>
+        				<name>(0) AS _DetailsCount</name>
+        			</field>
+        		</fields>
+        	</context>
+		</table>
+	</dataset>
+</data>
+

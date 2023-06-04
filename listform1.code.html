@@ -1,0 +1,254 @@
+<template id="tempdropdownitem">
+    <a class="dropdown-item" href="#"  onclick="mOpenPopup('{{path}}'); return false;" style="{{styledisplay}}">
+        <img src="{{image}}" alt="{{caption}}" style="width: 36px; height: 36px; margin-right: 8px;"/>
+        {{caption}}
+    </a>
+</template>
+<template id="templateRow1">
+  	<tr class="hmjs-data" data-dataid="{{Id}}">
+		<td><img  src="$$_GetImage({{Type}})$$" style="width:32px; height:32px" alt=""/></td>
+		<td> 
+		    <div style="float:left"> 
+			    <a href="#" onClick = "addRow('{{Id}}'); return false;"><img src="/images/menue/document_add1.svg" style="width:32px; height:32px" alt=""/></a>
+		    </div>
+		    <div style="float:left">
+		        <a href="#" onclick="changeRow('{{Id}}', '{{Nummer}}', '{{Type}}'); return false;"><img src="/images/menue/edit1.svg" style="width:32px; height:32px" title="Details öffnen" alt=""/></a>
+    		</div>
+			<div style="float:left">
+		        <a href="#" onclick="deleteRow('{{Id}}', '{{Type}}'); return false;"><img src="/images/menue/document_delete1.svg" style="width:32px; height:32px" title="Datensatz löschen" alt=""/></a>
+    		</div>			
+		    <div style="float:left">
+		        <a href="#" onclick="refreshRow('{{Id}}', '{{Type}}'); return false;"><img src="/images/menue/refresh1.svg" style="width:32px; height:32px" title="Zeile Aktualisieren" alt=""/></a>
+    		</div> 
+			<div style="float:left">
+		        <a href="#" onclick="mOpenPopup('/default01/products6.0/78e6f4a0-1ad6-4dec-a8c8-c113f6ef22fa/v001/list1/details1/details1.aspx?MasterId={{Id}}');"><img src="/images/menue/address_assignment_c4c4c4.svg" style="width:32px; height:32px" title="Mitarbeiter Details" alt=""/></a>
+    		</div>
+    		<div style="float:left" id="dropdown-{{Id}}"  class="dropup">
+                <button class="btn" onclick="showDropDown('dropdownids-{{Id}}', '{{Id}}', 'e9d258b9eadb45aeb718b6e7f0bff111');return false" title="weitere Menüpunkte" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    ...
+                </button>
+                <div id="dropdownids-{{Id}}" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                </div>                
+            </div>
+        </td>
+		<td> 
+		    {{Kurzname}}<br/> 
+		    $$dateToString('{{Birthday}}')$$
+		</td>
+		<td>{{Strasse}}$$('{{Ort}}' != '') ? '<br/>' : ''$${{PLZ}} {{Ort}}</td>
+		<td>
+		    <a onclick="btnNumber_Click('{{Id}}', '{{Telefon}}', '{{Adresse1}}', '{{Ansprechpartner}}', '{{EMail}}')" href="#">{{EMail}}$$('{{Telefon}}'!='') ? '<br/>' : ''$$</a>
+		    <a onclick="btnNumber_Click('{{Id}}', '{{Telefon}}', '{{Adresse1}}', '{{Ansprechpartner}}', '{{EMail}}')" href="#">{{Telefon}}$$('{{Mobil}}'!='') ? '<br/>' : ''$$</a>
+		    <a onclick="btnNumber_Click('{{Id}}', '{{Mobil}}', '{{Adresse1}}', '{{Ansprechpartner}}', '{{EMail}}')" href="#">{{Mobil}}</a>
+		</td>
+	</tr>
+</template>
+
+<template id="templateDatainfo">
+    <div>Datensätze gesamt [{{count}}] gefilter: [{{countfilter}}]</div>
+</template>
+<div>
+    <input id="filter" type="text"  title="Zum suchen das Feld mit <Enter> oder <Tab> verlassen"  placeholder="Filter..." onkeyup="filterData('filter', 'hmjs-data', 0)" onblur="filterData('filter', 'hmjs-data', 1)"/>
+    <div id="datainfo">
+    </div>
+    <div class="divtable">
+        <table id="table1" class="table table-bordered" style="width:100%;height:100%">	
+			<thead>
+				<tr>
+					<th>Typ</th>
+					<th style="width:15%">#</th>
+					<th>Kurzname</th>
+					<th>Adresse</th>
+					<th>Kontakte</th>
+				</tr>
+			</thead>
+			<tbody id="bodydata">
+				
+			</tbody>
+    	</table>
+    </div>
+</div>
+<script type="text/javascript" src="/hmscripts/excel/xlsx.full.min.js"></script>
+<script>
+    document.title = "Adressen" 
+	let objSubtitle = document.getElementById("subtitle")
+	let objTitle = document.getElementById("title")
+	objTitle.innerHTML =  document.title;
+	objSubtitle.innerHTML = "Liste der Adressen mit Filter";
+	let mStrPath = ""
+	let mStrXML1 = ""
+	let mStrXML2 = ""
+	let mJsData
+    function btnLoadData_Click(){
+        _loadData()
+        return false
+	}
+	function _loadData(){
+		mStrPath = document.getElementById('hfCodePath').value
+		let strFile1 = mStrPath + "/data1.dataset.xml"
+        Data.ReadFile(strFile1, 0, function(strText){
+            mStrXML1 = strText;
+        }, "application/xml")
+		
+		let strFile2 = mStrPath + "/data2.dataset.xml"
+        Data.ReadFile(strFile2, 0, function(strText){
+            mStrXML2 = strText;
+        }, "application/xml")
+		
+		mJsData = getRows(runGetCondition())
+	    ViewJs.create("bodydata", "templateRow1", mJsData)
+	    jsonData = [{count: mJsData.length, countfilter: 0}]
+        ViewJs.create("datainfo", "templateDatainfo", jsonData)
+	    document.getElementById('filter').scrollIntoView();
+	    document.getElementById("hmProgressbar1").style.visibility = "hidden"
+		
+	}
+
+	function btnNumber_Click(pStrId, pStrFon, pStrAdresse1, pStrAnsprechpartner, pStrMail)
+	{
+		var strCaption = String.format("Anruf bei {0} - {1} (Tel: {2})", pStrAdresse1, pStrAnsprechpartner, pStrFon);
+		//console.log(Response.Write(objUser.Get("Name01"));
+		//var strCaption = "";
+		var strText = "";
+		var strMasterType = "mastertyp";
+		var jsonData = {caption: strCaption, text: strText, fon: pStrFon, email: pStrMail, link: [{masterid: pStrId, mastertype: strMasterType}]};
+		//console.log(JSON.stringify(jsonData));
+		
+		strJson = btoa(JSON.stringify(jsonData));
+		var strUrl = String.format("/default01/products6.0/ecccd674-e4d6-4f59-acbb-23f677ced1b7/v004/list1/new2/new2?JsonData={0}&Type=1", strJson) ;
+		mOpenPopup(strUrl);
+		
+	}
+	function changeRow(pStrId, pStrNummer, pStrType)
+	{
+		if(pStrType == "0")
+		{
+			// Adresse
+			var strUrl = String.format("/default01/products6.0/1c6f3de0-fccc-4c4b-8ba1-b480fb5865cc/v002/run2/execute1.aspx?ConfigDataId=dc77a59b-e557-4a01-bb96-0fef69faca7e&Id={0}&Nummer={1}", pStrId, pStrNummer);
+			window.open(strUrl);
+		}
+		else if(pStrType == "1")
+		{
+			//Ansprechpartner
+			var strUrl = String.format("/default01/products6.0/9d21e5a5-6aba-4bbe-89da-5cfdacfafb02/v002/list1/list1/details1/details1?Id={0}", pStrId);
+			mOpenPopup(strUrl);
+		}
+	}
+	
+	function deleteRow(pStrId, pStrType)
+	{
+		if (confirm('Möchten Sie den Datensatz löschen?'))
+		{
+			var strEntity = "";
+			
+			if(pStrType == "0")
+			{
+				// Adresse
+				strEntity = "HMSoftware.Entities.HMCRM.Address"
+			}
+			else if(pStrType == "1")
+			{
+				// Ansprechpartner
+				strEntity = "HMSoftware.Entities.HMCRM.AddressContact"
+			}
+			if(pStrId != "")
+			{
+				Data.DeleteDataRow(pStrId, strEntity);
+			}
+			var tblTable = document.getElementById("table1");
+			for (var intI = tblTable.rows.length - 1; intI >= 0; intI--) 
+			{
+				if(tblTable.rows[intI].getAttribute('data-dataid') == pStrId)
+				{
+					tblTable.deleteRow(intI);
+				}
+			}
+			
+		}
+	}
+	
+	function refreshRow(pStrId, pStrType)
+	{
+	    let trRow = document.querySelectorAll(String.format('[data-dataid = "{0}"]', pStrId))[0]
+		let strType = ""
+		if(pStrType == "0")
+		{
+			//Adresse
+			strType = "1"
+		}
+		else if(pStrType == "1")
+		{
+			//Ansprechpartner
+			strType = "2"
+		}
+	    let jsArray = getRows(pStrId, strType)
+	    let trNewRow = ViewJs.getModifiedTemplate("templateRow1", "tr", jsArray[0])
+	    trRow.parentNode.replaceChild(trNewRow, trRow)
+	}
+	function addRow(pStrId){
+	    let trRow = document.querySelectorAll(String.format('[data-dataid = "{0}"]', pStrId))[0]
+    	// Adresse
+		var strUrl = String.format("/default01/products6.0/9d21e5a5-6aba-4bbe-89da-5cfdacfafb02/v002/list1/new1/new1?CurrentId={0}", pStrId);
+		mOpenPopup(strUrl);
+	}
+	
+	function callbackAddRow(pStrCurrentId, pStrNewId)
+	{
+	    let trCurrentRow = document.querySelectorAll(String.format('[data-dataid = "{0}"]', pStrCurrentId))[0]
+        let strCondition = String.format("Id='{0}'", pStrNewId)
+	    let jsArray = getRows(strCondition)
+	    let trNewRow = ViewJs.getModifiedTemplate("templateRow1", "tr", jsArray[0])
+	    trCurrentRow.parentNode.insertBefore(trNewRow, trCurrentRow.nextSibling)
+	}
+	
+	function getRows(pStrCondition, pStrType = "0")
+	{
+		let strJson = ""
+        console.log(pStrCondition)
+		let strScriptPath = mStrPath + "/functions.py";
+		let strFunction = String.format("GetDataSet(\"{0}\", \"{1}\", \"{2}\", {3})", mStrXML1, mStrXML2, pStrCondition, pStrType);
+		let strJsonData = Data.RunPythonByString(strScriptPath, strFunction)
+	    let jsDataSet = JSON.parse( strJsonData)
+		let jsTable = jsDataSet.Tables.find(a => a.TableName == "Data1")
+		console.log(strJsonData)
+		return jsTable.Rows
+	}
+	function _GetImage(pIntType){
+	    let strUrl = "/images/menue/adress_deepskyblue.svg"
+		if (pIntType == 1)
+		{
+			strUrl = "/images/menue/person_gold.svg";
+		}
+		return strUrl;
+	}
+	function filterData(pStrFilterName, pStrDataClass, intType=0){
+	    if ((intType==0 && filter.value.length > 2) || intType==1){
+		    let jsonFilterInfo = ViewJs.filter(pStrFilterName, pStrDataClass)
+		    ViewJs.create("datainfo", "templateDatainfo", jsonFilterInfo)
+	    }
+	}
+    function showDropDown(pStrDropDownElement, pStrId, pStrDataGroup){
+        let jsonMenuItems = []
+        //jsonMenuItems.push("cf8503fb-96f9-4452-96ee-a86e6be7d6c0") //Mail
+        jsonMenuItems.push("5448e8d2-de45-4962-97ef-3cb7048f3819") //Arbeitsmappen
+        jsonMenuItems.push("9d4c1e66-edfa-411a-a27c-5c55c2f06eed") //Info
+        jsonMenuItems.push("51832ba5-deb1-4f96-8a06-ee4e11b7ad8d") //Kommentar
+        jsonMenuItems.push("4ef28b90-f87f-4e51-bbb3-228df6b4e870") //Termin
+        jsonMenuItems.push("8dae9133-5559-4b6c-80b8-e309592c8e81") //Anhänge
+        jsonMenuItems.push("82cda588-765b-4cf1-a6b0-66fb66ce1911") //Favorit
+        jsonMenuItems.push("a856e8d6-1d03-42cb-bc54-269f949974ea") //Karten
+        AddOn.CreateDropDown(pStrId, pStrDataGroup, pStrDropDownElement, "tempdropdownitem", jsonMenuItems) 
+    }
+    //Export Daten
+	function exportData(){
+		let jsonExportSettings = {"template": {"path": "", "filename": ""}, "sheet": {"name": "tabelle1", "startcell": "A1"}, "export": {"name": "Adressen.xlsx", "withheader": 1}}
+		jsonFields = [{"name": "Kurzname", "caption": "Kurzname", "visible": 1, "type": "string"},
+    		{"name": "Nummer", "caption": "Nummer", "visible": 1, "type": "string"},
+    		{"name": "Strasse", "caption": "Strasse", "visible": 1, "type": "string"},
+    		{"name": "PLZ", "caption": "Plz", "visible": 1, "type": "string"},
+    		{"name": "Ort", "caption": "Ort", "visible": 1, "type": "string"},
+    		{"name": "Telefon", "caption": "Telefon", "visible": 1, "type": "string"},
+    		{"name": "EMail", "caption": "E-Mail", "visible": 1, "type": "string"},]
+		dialog.excelExport(jsonExportSettings, jsonFields, mJsData)
+	}
+</script>

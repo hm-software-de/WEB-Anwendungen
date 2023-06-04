@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<data>
+  <id>1e0712cd-b32b-4166-b869-7b79e3971b3f</id>
+  <tooltip>Sucne in Kurzname, Nummer und E-Mail</tooltip>
+  <quicksearch>
+   <field>
+      <type>string</type>
+      <name>Kurzname</name>
+      <relation>Like</relation>
+    </field>
+    <field>
+      <type>string</type>
+      <name>Nummer</name>
+      <relation>Like</relation>
+    </field>
+    <field>
+      <type>string</type>
+      <name>EMail</name>
+      <relation>Like</relation>
+    </field>
+  </quicksearch>
+  <!--<datesearch>
+	<active>0</active>
+    <field>
+      <active>1</active>
+      <type>datetime</type>
+      <name>Date1</name>
+      <caption>Datum</caption>
+      <defaultvalue>4</defaultvalue>
+    </field>
+  </datesearch> -->
+  <!--
+  <searches>
+    <search>
+      <id>e8a20269-c955-418e-9cd9-04aa25780859</id>
+      <name>searchKundenliste</name>
+      <caption>Kundenliste</caption>
+      <image>HMPictures\32x32\plain\index_view.png</image>
+      <conditions>
+        <sql>Gruppe &gt;= 1 and Gruppe &lt; 20 </sql>
+      </conditions>
+      <active>1</active>
+    </search>
+    <search>
+      <id>25fc9140-0d9d-4527-8b36-c0282a9ee39c</id>
+      <name>searchLieferantenliste</name>
+      <caption>Lieferantenliste</caption>
+      <image>HMPictures\32x32\plain\index_view.png</image>
+      <conditions>
+        <sql>Gruppe &gt;= 20 and Gruppe &lt; 30 </sql>
+      </conditions>
+      <active>1</active>
+    </search>
+  </searches>-->
+</data>
